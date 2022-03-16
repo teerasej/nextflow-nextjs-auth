@@ -1,5 +1,6 @@
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from "next";
-import { getSession, useSession } from "next-auth/react"
+import { getSession, signOut, useSession } from "next-auth/react"
+import { useRouter } from "next/router";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
 
@@ -12,8 +13,20 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     }
 }
 
-const ProtectedPage: NextPage = ({session}:InferGetServerSidePropsType<typeof getServerSideProps>) => {
+const ProtectedPage: NextPage = ({ session }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
 
+    const router = useRouter()
+
+    useSession({
+        required: true,
+        onUnauthenticated: () => {
+            router.push('/signin')
+        }
+    })
+
+    const onSignOut = () => {
+        signOut()
+    }
 
     if (!session) {
         return (
@@ -26,6 +39,7 @@ const ProtectedPage: NextPage = ({session}:InferGetServerSidePropsType<typeof ge
     return (
         <div>
             <h1>Protected Page</h1>
+            <a onClick={onSignOut}>Sign out</a>
         </div>
     )
 }
