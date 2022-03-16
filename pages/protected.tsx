@@ -1,9 +1,19 @@
-import { NextPage } from "next";
-import { useSession } from "next-auth/react"
+import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from "next";
+import { getSession, useSession } from "next-auth/react"
 
-const ProtectedPage: NextPage = () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
 
-    const { data: session, status } = useSession()
+    const currentSession = await getSession(context)
+
+    return {
+        props: {
+            session: currentSession
+        }
+    }
+}
+
+const ProtectedPage: NextPage = ({session}:InferGetServerSidePropsType<typeof getServerSideProps>) => {
+
 
     if (!session) {
         return (
